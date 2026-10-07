@@ -1,0 +1,72 @@
+ABC라이프케어 랜딩 페이지 이미지 생성 프롬프트
+==================================================
+
+[사용 방법]
+1. 각 항목의 "PROMPT" 아래 한 단락을 통째로 복사해 이미지 생성 AI(Midjourney, DALL·E, Stable Diffusion, Firefly 등)에 붙여넣으세요.
+2. 생성된 이미지를 index.html과 같은 폴더의 images 폴더에 "저장 파일명"으로 저장하면 페이지에 자동 표시됩니다.
+   (이미지가 없으면 파스텔 배경색만 보이므로 순서대로 하나씩 채워도 됩니다.)
+3. Midjourney 사용 시 각 프롬프트 끝의 --ar 비율 옵션을 그대로 사용하고, 다른 툴은 --ar 부분을 지우고 비율을 따로 지정하세요.
+
+[공통 스타일 — 모든 이미지에 이미 포함됨]
+soft pastel palette (mint, peach, lilac, butter yellow, powder blue), minimal and clean, warm natural light, calm and trustworthy mood, Korean people, no text, no logo
+
+
+--------------------------------------------------
+1. 히어로 메인 이미지
+저장 파일명: images/hero.jpg   |   비율: 4:4.2 (거의 정사각형)
+--------------------------------------------------
+PROMPT:
+A warm, minimal lifestyle photo of a multi-generational Korean family (grandparents, parents, and a young child) sitting together on a light linen sofa in a bright, airy living room, smiling and talking comfortably, soft pastel palette of mint, peach, lilac and powder blue, clean white walls with a few green plants, gentle morning sunlight through sheer curtains, shallow depth of field, editorial photography style, calm and trustworthy mood, lots of negative space, no text, no logo --ar 1:1 --style raw
+
+
+--------------------------------------------------
+2. 서비스 카드 — 건강 상담
+저장 파일명: images/service-health.jpg   |   비율: 4:3
+--------------------------------------------------
+PROMPT:
+Minimal still-life photo representing healthy living: a glass of water, a bowl of fresh fruit and vegetables, a rolled yoga mat and a simple stethoscope arranged neatly on a pale mint background, soft diffused daylight, pastel mint and white color palette, clean composition with generous negative space, calm and fresh mood, high-end editorial product photography, no text, no logo --ar 4:3 --style raw
+
+
+--------------------------------------------------
+3. 서비스 카드 — 재무 상담
+저장 파일명: images/service-finance.jpg   |   비율: 4:3
+--------------------------------------------------
+PROMPT:
+Minimal still-life photo representing personal financial planning: a neat notebook with a pen, a small ceramic piggy bank, a calculator and a few stacked coins on a soft peach background, warm diffused daylight, pastel peach and cream color palette, clean organized composition with generous negative space, calm and reassuring mood, high-end editorial product photography, no text, no numbers, no logo --ar 4:3 --style raw
+
+
+--------------------------------------------------
+4. 서비스 카드 — 가족 상담
+저장 파일명: images/service-family.jpg   |   비율: 4:3
+--------------------------------------------------
+PROMPT:
+Gentle lifestyle photo of a Korean mother and her teenage daughter sitting at a light wooden kitchen table, holding warm mugs and having a heartfelt conversation, soft lilac and lavender tones in the interior, natural window light, cozy and peaceful atmosphere, minimal clean background, candid emotional moment, editorial photography style, no text, no logo --ar 4:3 --style raw
+
+
+--------------------------------------------------
+5. 서비스 카드 — 은퇴 상담
+저장 파일명: images/service-retirement.jpg   |   비율: 4:3
+--------------------------------------------------
+PROMPT:
+Serene lifestyle photo of a happy Korean senior couple in their 60s walking together along a quiet park path, wearing light neutral clothing, soft butter yellow and pale green tones, golden afternoon sunlight, relaxed and hopeful mood, minimal composition with soft blurred background, editorial photography style, no text, no logo --ar 4:3 --style raw
+
+
+--------------------------------------------------
+6. 상담 신청 섹션 — 1:1 상담 장면
+저장 파일명: images/consultation.jpg   |   비율: 4:3
+--------------------------------------------------
+PROMPT:
+Professional yet friendly one-on-one consultation scene: a Korean female counselor in a soft beige blazer listening attentively to a middle-aged Korean client across a small round white table in a bright minimal office, a tablet and notebook on the table, pastel peach and powder blue accents, soft natural light, warm trustworthy atmosphere, shallow depth of field, editorial photography style, no text, no logo --ar 4:3 --style raw
+
+
+--------------------------------------------------
+[선택] 일러스트 스타일로 통일하고 싶을 때
+--------------------------------------------------
+위 프롬프트의 "photo / photography style" 부분을 아래 문구로 바꿔 사용하세요.
+
+flat minimal vector illustration, soft pastel colors, rounded shapes, subtle grain texture, simple background, friendly and calm mood
+
+
+[선택] 공통 네거티브 프롬프트 (Stable Diffusion 등 지원 툴용)
+--------------------------------------------------
+text, watermark, logo, signature, blurry, low quality, distorted face, extra fingers, deformed hands, oversaturated colors, dark moody lighting, cluttered background
