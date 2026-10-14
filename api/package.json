@@ -1,0 +1,12 @@
+{
+  "name": "redev-collateral-api",
+  "version": "1.0.0",
+  "description": "정비사업 담보물 조회 REST API",
+  "main": "src/server.js",
+  "private": true,
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js"
+  }
+}

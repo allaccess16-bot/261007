@@ -1,0 +1,117 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "정비사업 담보물 조회 API",
+    "version": "1.0.0",
+    "description": "주택연금 담보물 주소로 재개발·재건축 진행단계와 취급·담보관리 판정을 조회합니다. 데이터: 서울시 정비사업 추진현황(2026.6월말, 496개 구역), 국토교통부 전국 도시정비사업 통합(2026.5.18, 922개 구역). 공공데이터 기준 참고자료이며 최종 판정 전 구청·시청 고시를 확인해야 합니다."
+  },
+  "servers": [{ "url": "http://localhost:8080" }],
+  "components": {
+    "securitySchemes": { "ApiKey": { "type": "apiKey", "in": "header", "name": "X-API-Key", "description": "서버에 API_KEY 환경변수를 지정한 경우에만 필요" } },
+    "parameters": {
+      "mode": { "name": "mode", "in": "query", "schema": { "type": "string", "enum": ["new", "exec"], "default": "new" }, "description": "new=신규 신청·심사, exec=실행 완료(연금수령중)" }
+    },
+    "schemas": {
+      "Verdict": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string", "enum": ["stop", "warn", "check", "ok", "na"], "description": "stop=신규 취급불가, warn=근저당 검토/변경·전환 대상, check=조합설립 신청 확인, ok=취급 가능·모니터링, na=기준 해당 없음" },
+          "label": { "type": "string", "example": "신규 취급불가" },
+          "reason": { "type": "string", "example": "관리처분인가 이후 ~ 준공 후 등기 전" }
+        }
+      },
+      "Zone": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "S-1441", "description": "S-{서울 사업코드} 또는 M-{국토부 자료 순번}" },
+          "source": { "type": "string", "enum": ["seoul", "molit"] },
+          "name": { "type": "string", "example": "신영1" },
+          "sido": { "type": "string", "example": "서울특별시" },
+          "gu": { "type": "string", "example": "종로구" },
+          "address": { "type": "object", "nullable": true, "description": "서울 자료만 제공 (구역 대표지번 1개)", "properties": { "jibun": { "type": "string" }, "road": { "type": "string", "nullable": true } } },
+          "type": { "type": "string", "example": "주택정비형 재개발" },
+          "operator": { "type": "string" },
+          "supplyHouseholds": { "type": "integer", "nullable": true },
+          "stage": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string", "enum": ["ZONE", "COMM", "UNION", "REVIEW", "PERMIT", "MGMT", "CONST"] },
+              "label": { "type": "string", "example": "착공" },
+              "order": { "type": "integer", "minimum": 0, "maximum": 6 },
+              "dates": { "type": "object", "nullable": true, "additionalProperties": { "type": "string", "nullable": true } },
+              "moveStart": { "type": "string", "nullable": true }
+            }
+          }
+        }
+      },
+      "Match": {
+        "type": "object", "nullable": true,
+        "properties": {
+          "level": { "type": "integer", "description": "4=대표지번/도로명 일치, 3=본번 일치, 2=구역명 일치, 1=같은 동 후보, 0=같은 시군구 후보" },
+          "label": { "type": "string", "nullable": true },
+          "weak": { "type": "boolean", "description": "true면 위치 확인이 필요한 후보" }
+        }
+      },
+      "Result": { "allOf": [{ "$ref": "#/components/schemas/Zone" }, { "type": "object", "properties": { "match": { "$ref": "#/components/schemas/Match" }, "verdict": { "$ref": "#/components/schemas/Verdict" } } }] },
+      "Error": { "type": "object", "properties": { "error": { "type": "object", "properties": { "code": { "type": "string" }, "message": { "type": "string" } } } } }
+    }
+  },
+  "security": [{}, { "ApiKey": [] }],
+  "paths": {
+    "/api/v1/lookup": {
+      "get": {
+        "summary": "주소·구역명으로 정비구역 조회 및 판정",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" }, "description": "담보물 지번·도로명 주소 또는 구역명. 예: 서울 종로구 신영동 158-2", "example": "종로구 신영동 158-2" },
+          { "$ref": "#/components/parameters/mode" },
+          { "name": "region", "in": "query", "schema": { "type": "string", "enum": ["all", "서울", "경기", "etc"], "default": "all" } },
+          { "name": "gu", "in": "query", "schema": { "type": "string" }, "description": "구·시군 정확히 일치 (예: 종로구)" },
+          { "name": "kind", "in": "query", "schema": { "type": "string", "enum": ["stop", "warn", "check", "ok", "na"] }, "description": "판정 결과로 필터" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 40, "minimum": 1, "maximum": 200 } },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0, "minimum": 0 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "조회 결과. best는 대표지번·도로명·본번이 일치한 구역(없으면 null).",
+            "content": { "application/json": { "schema": { "type": "object", "properties": {
+              "query": { "type": "object" },
+              "total": { "type": "integer" },
+              "strongMatches": { "type": "integer", "nullable": true },
+              "summary": { "type": "object", "additionalProperties": { "type": "object", "properties": { "label": { "type": "string" }, "stages": { "type": "string" }, "count": { "type": "integer" } } } },
+              "best": { "allOf": [{ "$ref": "#/components/schemas/Result" }], "nullable": true },
+              "results": { "type": "array", "items": { "$ref": "#/components/schemas/Result" } }
+            } } } }
+          },
+          "400": { "description": "잘못된 파라미터", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/v1/lookup/batch": {
+      "post": {
+        "summary": "담보물 여러 건 일괄 판정 (최대 500건)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["items"], "properties": {
+          "mode": { "type": "string", "enum": ["new", "exec"], "default": "new" },
+          "candidates": { "type": "integer", "default": 3, "minimum": 0, "maximum": 20, "description": "건별로 함께 돌려줄 후보 구역 수" },
+          "items": { "type": "array", "maxItems": 500, "items": { "oneOf": [ { "type": "string" }, { "type": "object", "properties": { "id": { "type": "string", "description": "호출측 식별자(계약번호 등), 응답에 그대로 반환" }, "address": { "type": "string" }, "mode": { "type": "string", "enum": ["new", "exec"] } } } ] } }
+        } }, "example": { "mode": "exec", "items": [ { "id": "HP-0001", "address": "종로구 신영동 158-2" }, "신월동 941" ] } } } },
+        "responses": { "200": { "description": "건별 best 판정과 후보 목록" }, "400": { "description": "잘못된 요청" } }
+      }
+    },
+    "/api/v1/zones/{id}": {
+      "get": {
+        "summary": "구역 단건 조회",
+        "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "example": "S-1441" }, { "$ref": "#/components/parameters/mode" } ],
+        "responses": { "200": { "description": "구역 정보와 판정", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Result" } } } }, "404": { "description": "없는 구역" } }
+      }
+    },
+    "/api/v1/areas": {
+      "get": {
+        "summary": "시도·구·시군 목록과 구역 수",
+        "parameters": [ { "name": "region", "in": "query", "schema": { "type": "string", "enum": ["all", "서울", "경기", "etc"], "default": "all" } } ],
+        "responses": { "200": { "description": "구·시군 목록" } }
+      }
+    },
+    "/api/v1/meta": { "get": { "summary": "데이터 출처, 단계, 판정 기준", "responses": { "200": { "description": "메타 정보" } } } },
+    "/health": { "get": { "summary": "헬스체크", "security": [{}], "responses": { "200": { "description": "ok" } } } }
+  }
+}
